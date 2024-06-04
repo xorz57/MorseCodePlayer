@@ -1,12 +1,5 @@
-#if defined(_WIN32)
 #include <al.h>
 #include <alc.h>
-#elif defined(__linux__) || defined(__APPLE__)
-#include <AL/al.h>
-#include <AL/alc.h>
-#else
-#error "Unsupported Platform!"
-#endif
 
 #include <cmath>
 #include <cstdint>
