@@ -18,7 +18,7 @@
 
 class MorseCodePlayer {
 public:
-    void PlayMorseCode(const std::string &morseCode) {
+    void Play(const std::string &morseCode) {
         auto audioDevice = alcOpenDevice(nullptr);
         if (!audioDevice) {
             std::cerr << "Failed to open OpenAL audio device" << std::endl;
@@ -98,6 +98,6 @@ private:
 
 int main() {
     MorseCodePlayer morseCodePlayer;
-    morseCodePlayer.PlayMorseCode("... --- ...");
+    morseCodePlayer.Play("... --- ...");
     return 0;
 }
