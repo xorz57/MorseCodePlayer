@@ -16,7 +16,7 @@
 
 class MorseCodePlayer {
 public:
-    void Play(const std::string &morseCode) {
+    void Play(const std::string &str) {
         auto audioDevice = alcOpenDevice(nullptr);
         if (!audioDevice) {
             std::cerr << "Failed to open OpenAL audio device!" << std::endl;
@@ -37,8 +37,8 @@ public:
             std::exit(EXIT_FAILURE);
         }
 
-        for (unsigned char character: morseCode) {
-            switch (character) {
+        for (unsigned char c: str) {
+            switch (c) {
                 case '/':
                     PlayTone(0.0f, 7 * dotDuration);
                     break;
@@ -54,7 +54,9 @@ public:
                 default:
                     break;
             }
+            std::cout << c;
         }
+        std::cout << std::endl;
 
         alcMakeContextCurrent(nullptr);
         alcDestroyContext(audioContext);
@@ -65,14 +67,14 @@ private:
     void PlayTone(float frequency, std::uint32_t duration) {
         alGenBuffers(1, &mBufferID);
 
-        const std::uint32_t sample_rate = 44'100;
-        const std::uint32_t sample_count = sample_rate * duration / 1'000;
-        std::vector<std::int16_t> samples(sample_count);
-        for (std::uint32_t i = 0; i < sample_count; ++i) {
-            samples[i] = static_cast<std::int16_t>(std::numeric_limits<std::int16_t>::max() * std::sin(2.0f * std::numbers::pi * frequency * i / sample_rate));
+        const std::uint32_t sampleRate = 44'100;
+        const std::uint32_t sampleCount = sampleRate * duration / 1'000;
+        std::vector<std::int16_t> samples(sampleCount);
+        for (std::uint32_t i = 0; i < sampleCount; ++i) {
+            samples[i] = static_cast<std::int16_t>(std::numeric_limits<std::int16_t>::max() * std::sin(2.0f * std::numbers::pi * frequency * i / sampleRate));
         }
 
-        alBufferData(mBufferID, AL_FORMAT_MONO16, samples.data(), static_cast<std::int32_t>(sample_count * sizeof(std::int16_t)), sample_rate);
+        alBufferData(mBufferID, AL_FORMAT_MONO16, samples.data(), static_cast<std::int32_t>(sampleCount * sizeof(std::int16_t)), sampleRate);
 
         alGenSources(1, &mSourceID);
         alSourcei(mSourceID, AL_BUFFER, static_cast<std::int32_t>(mBufferID));
