@@ -1,9 +1,6 @@
 #if defined(_WIN32) || defined(__linux__)
 #include <al.h>
 #include <alc.h>
-#elif defined(__APPLE__)
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
 #else
 #error "Unsupported Platform!"
 #endif
