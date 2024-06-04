@@ -1,11 +1,3 @@
-#include <cmath>
-#include <cstdint>
-#include <iostream>
-#include <limits>
-#include <numbers>
-#include <string>
-#include <vector>
-
 #if defined(_WIN32)
 #include <al.h>
 #include <alc.h>
@@ -16,27 +8,36 @@
 #error "Unsupported Platform!"
 #endif
 
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <limits>
+#include <numbers>
+#include <string>
+#include <vector>
+
 class MorseCodePlayer {
 public:
     void Play(const std::string &morseCode) {
         auto audioDevice = alcOpenDevice(nullptr);
         if (!audioDevice) {
-            std::cerr << "Failed to open OpenAL audio device" << std::endl;
-            return;
+            std::cerr << "Failed to open OpenAL audio device!" << std::endl;
+            std::exit(EXIT_FAILURE);
         }
 
         auto audioContext = alcCreateContext(audioDevice, nullptr);
         if (!audioContext) {
-            std::cerr << "Failed to create OpenAL audio context" << std::endl;
+            std::cerr << "Failed to create OpenAL audio context!" << std::endl;
             alcCloseDevice(audioDevice);
-            return;
+            std::exit(EXIT_FAILURE);
         }
 
         if (!alcMakeContextCurrent(audioContext)) {
-            std::cerr << "Failed to make OpenAL audio context current" << std::endl;
+            std::cerr << "Failed to make OpenAL audio context current!" << std::endl;
             alcDestroyContext(audioContext);
             alcCloseDevice(audioDevice);
-            return;
+            std::exit(EXIT_FAILURE);
         }
 
         for (unsigned char character: morseCode) {
@@ -64,36 +65,36 @@ public:
     }
 
 private:
-    void PlayTone(float frequency, std::int32_t duration) {
-        alGenBuffers(1, &bufferId);
+    void PlayTone(float frequency, std::uint32_t duration) {
+        alGenBuffers(1, &mBufferID);
 
-        const ALsizei sampleRate = 44'100;
-        const ALsizei sampleCount = sampleRate * duration / 1'000;
-        std::vector<ALshort> samples(sampleCount);
-        for (ALsizei i = 0; i < sampleCount; ++i) {
-            samples[i] = static_cast<ALshort>(std::numeric_limits<ALshort>::max() * std::sin(2.0f * std::numbers::pi * frequency * i / sampleRate));
+        const std::uint32_t sample_rate = 44'100;
+        const std::uint32_t sample_count = sample_rate * duration / 1'000;
+        std::vector<std::int16_t> samples(sample_count);
+        for (std::uint32_t i = 0; i < sample_count; ++i) {
+            samples[i] = static_cast<std::int16_t>(std::numeric_limits<std::int16_t>::max() * std::sin(2.0f * std::numbers::pi * frequency * i / sample_rate));
         }
 
-        alBufferData(bufferId, AL_FORMAT_MONO16, samples.data(), sampleCount * sizeof(ALshort), sampleRate);
+        alBufferData(mBufferID, AL_FORMAT_MONO16, samples.data(), static_cast<std::int32_t>(sample_count * sizeof(std::int16_t)), sample_rate);
 
-        alGenSources(1, &sourceId);
-        alSourcei(sourceId, AL_BUFFER, bufferId);
-        alSourcePlay(sourceId);
+        alGenSources(1, &mSourceID);
+        alSourcei(mSourceID, AL_BUFFER, static_cast<std::int32_t>(mBufferID));
+        alSourcePlay(mSourceID);
 
         ALint sourceState;
         do {
-            alGetSourcei(sourceId, AL_SOURCE_STATE, &sourceState);
+            alGetSourcei(mSourceID, AL_SOURCE_STATE, &sourceState);
         } while (sourceState == AL_PLAYING);
 
-        alDeleteSources(1, &sourceId);
-        alDeleteBuffers(1, &bufferId);
+        alDeleteSources(1, &mSourceID);
+        alDeleteBuffers(1, &mBufferID);
     }
 
-    ALuint bufferId = 0u;
-    ALuint sourceId = 0u;
+    std::uint32_t mBufferID = 0u;
+    std::uint32_t mSourceID = 0u;
 
-    const std::uint32_t dotDuration = 100u;// in milliseconds
-    const float toneFrequency = 500.0f;    // in Hertz
+    const std::uint32_t dotDuration = 100u;
+    const float toneFrequency = 500.0f;
 };
 
 int main() {
