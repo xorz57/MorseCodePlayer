@@ -1,0 +1,7 @@
+{
+    "name": "morse-code-player",
+    "version-string": "0.1.0",
+    "dependencies": [
+        "openal-soft"
+    ]
+}
