@@ -98,6 +98,6 @@ private:
 
 int main() {
     MorseCodePlayer morseCodePlayer;
-    morseCodePlayer.Play("... --- ...");
+    morseCodePlayer.Play(".... . .-.. .-.. --- / .-- --- .-. .-.. -..");
     return 0;
 }
